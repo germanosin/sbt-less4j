@@ -1,0 +1,31 @@
+.button-layout (
+  @border-radius: 3px,
+  @button-padding: 0 0 0 11px,
+  @text-margin: 7px 18px 7px 8px,
+  @icon-margin: 8px 0,
+  @button-icon-width: @button-icon-width,
+  @button-icon-height: @button-icon-height,
+  @inner-shadow: true
+) {
+  font-size: 15px;
+  height: 33px;
+  color: #FFF;
+  border: 1px solid;
+
+  .button.button-body(@border-radius, @button-padding, @inner-shadow);
+  .button-icon {
+    .button.button-icon(@button-icon-width, @button-icon-height, @icon-margin);
+  }
+  .button-text{
+    .button.button-text(@text-margin);
+  }
+  &:active{
+    .button-icon{
+      .button.button-icon-active (@button-icon-width, @button-icon-height, @icon-margin);
+    }
+  }
+}
+
+.button {
+  .button-layout(@border-radius, @button-padding, @text-margin, @icon-margin, @button-icon-width, @button-icon-height, @inner-shadow);
+}
