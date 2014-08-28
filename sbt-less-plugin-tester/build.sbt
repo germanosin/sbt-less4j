@@ -8,6 +8,6 @@ Less4jKeys.compress in Assets := false
 
 Less4jKeys.compress in TestAssets := false
 
-includeFilter in (Assets, Less4jKeys.less4j) := "mapissues.less" | "bar.less"
+//includeFilter in (Assets, Less4jKeys.less4j) := "mapissues.less" | "bar.less"
 
 //includeFilter in (Assets, LessKeys.less) := "foo.less" | "bar.less"

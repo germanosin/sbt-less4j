@@ -21,8 +21,6 @@ object Import {
     val less4j = TaskKey[Seq[File]]("less4j", "Invoke the less compiler")
 
     val compress = SettingKey[Boolean]("less-compress", "Compress output by removing some whitespaces.")
-    val relativeUrls = SettingKey[Boolean]("less-relative-urls", "Re-write relative urls to the base less file.")
-    val rootpath = SettingKey[String]("less-rootpath", "Set rootpath for url rewriting in relative imports and urls.")
     val sourceMap = SettingKey[Boolean]("less-source-map", "Outputs a v3 sourcemap.")
     val sourceMapFileInline = SettingKey[Boolean]("less-source-map-file-inline", "Whether the source map should be embedded in the output file")
     val sourceMapLessInline = SettingKey[Boolean]("less-source-map-less-inline", "Whether to embed the less code in the source map")
@@ -39,19 +37,15 @@ object Import {
 case class Less4jConfig(
                          val compress:Boolean,
                          val paths:List[File],
-                         val rootpath:String,
                          val sourceMap:Boolean,
                          val sourceMapFileInline:Boolean,
-                         val sourceMapLessInline:Boolean,
-                         val relativeUrls:Boolean,
-                         val sourceMapRootpath:String)
+                         val sourceMapLessInline:Boolean)
 {
   val config = new LessCompiler.Configuration()
   config.setCompressing(compress)
   config.getSourceMapConfiguration.setLinkSourceMap(sourceMap)
   config.getSourceMapConfiguration.setInline(sourceMapFileInline)
   config.getSourceMapConfiguration.setIncludeSourcesContent(sourceMapLessInline)
-  config.getSourceMapConfiguration.setRelativizePaths(relativeUrls)
   def getConfig = config
 }
 
@@ -78,12 +72,9 @@ object SbtLess4j extends AutoPlugin {
     less4jConfig := Less4jConfig(
       compress.value,
       (sourceDirectories.value ++ resourceDirectories.value ++ webModuleDirectories.value).toList,
-      rootpath.value,
       sourceMap.value,
       sourceMapFileInline.value,
-      sourceMapLessInline.value,
-      relativeUrls.value,
-      sourceMapRootpath.value
+      sourceMapLessInline.value
     )
   )
 
@@ -155,13 +146,15 @@ object SbtLess4j extends AutoPlugin {
       scala.tools.nsc.io.File(targetCss).writeAll(compilationResult.getCss)
       scala.tools.nsc.io.File(targetMap).writeAll(compilationResult.getSourceMap)
 
-      val writtenSources = lessSource.getImportedSources.map(
+      val readenSources = lessSource.getImportedSources.map(
         importSource => {
           importSource.asInstanceOf[CustomFileSource].getInputFile.getCanonicalFile
         }
-      ).toSet ++ Set(targetCss,targetMap)
+      ).toSet ++ Set(source)
 
-      (FileOpResultMappings( source -> OpSuccess(Set(source), writtenSources)), errors)
+      val writtenSources = Set(targetCss,targetMap)
+
+      (FileOpResultMappings( source -> OpSuccess(readenSources, writtenSources)), errors)
     } catch  {
       case e:Less4jException => {
         val errors = e.getErrors.toList.map(
@@ -202,23 +195,20 @@ object SbtLess4j extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     compress := false,
-    relativeUrls := true,
-    rootpath := "",
     sourceMap := true,
     sourceMapFileInline := false,
-    sourceMapLessInline := false,
-    sourceMapRootpath := ""
+    sourceMapLessInline := false
   ) ++ inTask(less4j)(
     inConfig(Assets)(less4jUnscopedSettings) ++
     inConfig(TestAssets)(less4jUnscopedSettings) ++
       Seq(
         moduleName := "less4j",
         taskMessage in Assets := "LESS4J compiling",
-        taskMessage in TestAssets := "LESS4J test compiling"
+        taskMessage in TestAssets := "LESS4J test compiling",
+        includeFilter in Assets := "*.less",
+        excludeFilter in TestAssets := "_*.less"        
       )
   )  ++ addLessFilesTasks(less4j) ++ Seq(
-    includeFilter in less4j := "*.less",
-    excludeFilter in less4j := "_*.less",
     target in less4j := webTarget.value / less4j.key.label,
     fileInputHasher := OpInputHasher[File](f =>
       OpInputHash.hashString(f.getAbsolutePath)
