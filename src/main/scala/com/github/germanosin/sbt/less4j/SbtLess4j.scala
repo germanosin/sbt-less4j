@@ -98,7 +98,7 @@ object SbtLess4j extends AutoPlugin {
               val targetDir = (resourceManaged in task in config).value
               val lessConfig = (less4jConfig in task in config).value
 
-              val replaceName = if (lessConfig.getConfig.isCompressing) ".css" else ".min.css"
+              val replaceName = if (lessConfig.getConfig.isCompressing) ".min.css" else ".css"
               val targetCss = targetDir / modifiedPath.replaceAll("\\.less", replaceName)
               val targetMap = targetDir / modifiedPath.replaceAll("\\.less", ".css.map")
               val targetPath = targetCss.getParentFile
