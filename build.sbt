@@ -4,12 +4,12 @@ organization := "com.github.germanosin.sbt"
 
 name := "sbt-less4j"
 
-version := "1.0.0"
+version := "1.0.1"
 
 scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
-	"com.github.sommeri" % "less4j" % "1.8.0"
+	"com.github.sommeri" % "less4j" % "1.8.2"
 )
 
 resolvers ++= Seq(
