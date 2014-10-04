@@ -18,7 +18,7 @@ includeFilter in (Assets, Less4jKeys.less4j) := "main.less" | "foo.less" | "bar.
 Add a dependency to the plugins.sbt file:
 
 ```scala
-addSbtPlugin("com.github.germanosin.sbt" % "sbt-less4j" % "1.0.0")
+addSbtPlugin("com.github.germanosin.sbt" % "sbt-less4j" % "1.0.1")
 ```
 
 ## Author
