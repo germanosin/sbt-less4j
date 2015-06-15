@@ -10,6 +10,7 @@ scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
   "com.github.sommeri" % "less4j" % "1.12.0",
+  "commons-logging" % "commons-logging" % "1.2"
 )
 
 resolvers ++= Seq(
